@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 
 # from keras.preprocessing import sequence
 # import tensorflow as tf
@@ -11,7 +12,7 @@ import matplotlib.pyplot as plt
 # from keras.models import load_model
 # from keras.callbacks import ModelCheckpoint
 
-WINDOW_SIZE = 20
+WINDOW_SIZE = 40
 
 def main():
     data_file1 ='./data_separated/phoneDataStill8sec.txt'
@@ -22,9 +23,12 @@ def main():
 
 
     windows, diffs = make_data(data_mixed)
-    print(diffs[0])
 
     classes = threash_classify(diffs)
+
+    plt.rcParams.update({'font.size': 22})
+
+    plt.figure(figsize=[18, 15])
     plt.plot(range(len(classes)), classes)
     one_channel = [val[1][WINDOW_SIZE-1] for val in windows[:]]
     plt.plot(range(len(classes)), one_channel, label='x')
@@ -32,17 +36,56 @@ def main():
     plt.plot(range(len(classes)), one_channel, label='y')
     one_channel = [val[3][WINDOW_SIZE-1] for val in windows[:]]
     plt.plot(range(len(classes)), one_channel, label='z')
+    i = 0
+    current_class = 0 # not a class, dummy
+    start_index = 0
+    found = [0, 0, 0]
+    while i < len(classes):
+        if current_class != classes[i]:
+            if current_class == -1:
+                plt.axvspan(start_index, i, facecolor='g', alpha=0.1, zorder=-100, label =  "_"*found[0] + "still")
+                found[0] = 1
+            if current_class == -2:
+                plt.axvspan(start_index, i, facecolor='b', alpha=0.1, zorder=-100, label =  "_"*found[1] + "walk")
+                found[1] = 1
+            if current_class == -3:
+                plt.axvspan(start_index, i, facecolor='r', alpha=0.1, zorder=-100, label =  "_"*found[2] + "run")
+                found[2] = 1
+            current_class = classes[i]
+            start_index = i
+        i += 1
     plt.legend()
+    plt.savefig('raw.png')
     plt.show()
 
+    plt.figure(figsize=[18, 15])
     plt.plot(range(len(classes)), classes)
     one_channel = [val[1] for val in diffs[:]]
-    plt.plot(range(len(classes)), one_channel, label='x')
+    plt.plot(range(len(classes)), one_channel, label='x_diff')
     one_channel = [val[2] for val in diffs[:]]
-    plt.plot(range(len(classes)), one_channel, label='y')
+    plt.plot(range(len(classes)), one_channel, label='y_diff')
     one_channel = [val[3] for val in diffs[:]]
-    plt.plot(range(len(classes)), one_channel, label='z')
+    plt.plot(range(len(classes)), one_channel, label='z_diff')
+    i = 0
+    current_class = 0 # not a class, dummy
+    start_index = 0
+    found = [0, 0, 0]
+    while i < len(classes):
+        if current_class != classes[i]:
+            if current_class == -1:
+                plt.axvspan(start_index, i, facecolor='g', alpha=0.1, zorder=-100, label =  "_"*found[0] + "still")
+                found[0] = 1
+            if current_class == -2:
+                plt.axvspan(start_index, i, facecolor='b', alpha=0.1, zorder=-100, label =  "_"*found[1] + "walk")
+                found[1] = 1
+            if current_class == -3:
+                plt.axvspan(start_index, i, facecolor='r', alpha=0.1, zorder=-100, label =  "_"*found[2] + "run")
+                found[2] = 1
+            current_class = classes[i]
+            start_index = i
+        i += 1
     plt.legend()
+    plt.savefig('windowed_diff.png')
     plt.show()
 
     data_files = [data_file1, data_file2, data_file3]
@@ -58,12 +101,12 @@ def main():
 def threash_classify(diffs_t):
     output = []
     for i in range(len(diffs_t)):
-        if diffs_t[i][0] < 0.2 and diffs_t[i][1] < 0.2 and diffs_t[i][2] < 0.2:
-            output.append(1)
-        elif diffs_t[i][0] < 4.5 and diffs_t[i][1] < 4.5 and diffs_t[i][2] < 12:
-            output.append(2)
+        if diffs_t[i][0] < 2.5 and diffs_t[i][1] < 2.5 and diffs_t[i][2] < 2.5:
+            output.append(-1)
+        elif diffs_t[i][0] < 15 and diffs_t[i][1] < 15 and diffs_t[i][2] < 15:
+            output.append(-2)
         else:
-            output.append(3)
+            output.append(-3)
     return output
 
 def make_data(data_file):
