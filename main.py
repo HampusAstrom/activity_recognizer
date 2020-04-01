@@ -17,10 +17,12 @@ def main():
     data_file1 ='./data_separated/phoneDataStill8sec.txt'
     data_file2 ='./data_separated/phoneDataWalking7sec.txt'
     data_file3 ='./data_separated/phoneDataRunning4sec.txt'
-    data_mixed = './phoneData40sec.txt'
+    #data_mixed = './phoneData40sec.txt'
+    data_mixed = './test_set100sec.txt'
 
 
     windows, diffs = make_data(data_mixed)
+    print(diffs[0])
 
     classes = threash_classify(diffs)
     plt.plot(range(len(classes)), classes)
@@ -29,6 +31,16 @@ def main():
     one_channel = [val[2][WINDOW_SIZE-1] for val in windows[:]]
     plt.plot(range(len(classes)), one_channel, label='y')
     one_channel = [val[3][WINDOW_SIZE-1] for val in windows[:]]
+    plt.plot(range(len(classes)), one_channel, label='z')
+    plt.legend()
+    plt.show()
+
+    plt.plot(range(len(classes)), classes)
+    one_channel = [val[1] for val in diffs[:]]
+    plt.plot(range(len(classes)), one_channel, label='x')
+    one_channel = [val[2] for val in diffs[:]]
+    plt.plot(range(len(classes)), one_channel, label='y')
+    one_channel = [val[3] for val in diffs[:]]
     plt.plot(range(len(classes)), one_channel, label='z')
     plt.legend()
     plt.show()
